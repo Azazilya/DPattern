@@ -73,32 +73,28 @@ Enemy CreateEnemy(int type) {
     return enemy;
 }
 
-// Pergerakan enemy ke arah acak yang bebas
-void MoveEnemyOnGrid(Enemy* enemy, int enemyIndex, int frameCounter[]) {
-    if (frameCounter[enemyIndex] < 30) {
+// Pergerakan enemy menuju pemain dengan kecepatan yang lebih lambat
+void MoveEnemyTowardsPlayer(Enemy* enemy, Vector2 playerPos, int enemyIndex, int frameCounter[]) {
+    if (frameCounter[enemyIndex] < 20) { // Memperlambat musuh
         frameCounter[enemyIndex]++;
         return;
     }
     frameCounter[enemyIndex] = 0;
 
     Vector2 gridPos = PixelPosToGridPos(enemy->position);
-    Vector2 directions[4] = {
-        {gridPos.x + 1, gridPos.y},
-        {gridPos.x - 1, gridPos.y},
-        {gridPos.x, gridPos.y + 1},
-        {gridPos.x, gridPos.y - 1}
-    };
+    Vector2 playerGridPos = PixelPosToGridPos(playerPos);
+    Vector2 bestMove = gridPos;
 
-    for (int tries = 0; tries < 10; tries++) {
-        int dirIndex = rand() % 4;
-        Vector2 newPos = directions[dirIndex];
+    // Tentukan arah optimal
+    if (playerGridPos.x > gridPos.x) bestMove.x++;
+    else if (playerGridPos.x < gridPos.x) bestMove.x--;
 
-        if (newPos.x >= 0 && newPos.x < GRID_WIDTH &&
-            newPos.y >= 0 && newPos.y < GRID_HEIGHT &&
-            grid[(int)newPos.y][(int)newPos.x] == '.') {
-            enemy->position = GridPosToPixelCenter(newPos);
-            break;
-        }
+    if (playerGridPos.y > gridPos.y) bestMove.y++;
+    else if (playerGridPos.y < gridPos.y) bestMove.y--;
+
+    // Periksa apakah langkah tidak menabrak dinding
+    if (grid[(int)bestMove.y][(int)bestMove.x] == '.') {
+        enemy->position = GridPosToPixelCenter(bestMove);
     }
 }
 
@@ -122,7 +118,7 @@ int main() {
         if (IsKeyPressed(KEY_ESCAPE)) break;
 
         if (gameRunning) {
-            if (playerFrameCounter < 10) {
+            if (playerFrameCounter < 5) { // Mempercepat pemain
                 playerFrameCounter++;
             } else {
                 Vector2 playerGridPos = PixelPosToGridPos(playerPos);
@@ -143,7 +139,7 @@ int main() {
             }
 
             for (int i = 0; i < ENEMY_COUNT; i++)
-                MoveEnemyOnGrid(&enemies[i], i, enemyFrameCounter);
+                MoveEnemyTowardsPlayer(&enemies[i], playerPos, i, enemyFrameCounter);
         }
 
         BeginDrawing();
