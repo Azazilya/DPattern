@@ -65,6 +65,7 @@ Vector2 GetRandomFreeGridPos() {
     }
 }
 
+// Strategy Pattern Enemy
 bool BFS(Vector2 start, Vector2 target, Vector2* nextStep) {
     int visited[GRID_HEIGHT][GRID_WIDTH] = {0};
     Node parent[GRID_HEIGHT][GRID_WIDTH];
@@ -111,6 +112,7 @@ bool BFS(Vector2 start, Vector2 target, Vector2* nextStep) {
     return true;
 }
 
+//Factory Pattern
 Enemy CreateEnemy(int type) {
     Enemy enemy;
     enemy.size = PLAYER_SIZE;
@@ -128,7 +130,7 @@ void MoveEnemyOnGrid(Enemy* enemy, int enemyIndex, int frameCounter[], Vector2 p
 
     Vector2 enemyGrid = PixelPosToGridPos(enemy->position);
     Vector2 nextStep;
-
+// Strategy Pattern Player
     if (BFS(enemyGrid, playerGridPos, &nextStep)) {
         enemy->position = GridPosToPixelCenter(nextStep);
     }
@@ -144,7 +146,7 @@ int main() {
     for (int i = 0; i < ENEMY_COUNT; i++) enemies[i] = CreateEnemy(i);
     int enemyFrameCounter[ENEMY_COUNT] = {0};
     int playerFrameCounter = 0;
-
+//Observer Pattern
     int score = 0;
     int lives = 3;
     bool gameRunning = true;
@@ -158,7 +160,7 @@ int main() {
     }
 
     while (!WindowShouldClose()) {
-        if (IsKeyPressed(KEY_SPACE)) gameRunning = !gameRunning;
+        if (IsKeyPressed(KEY_SPACE)) gameRunning = !gameRunning; //Observer Pattern
         if (IsKeyPressed(KEY_ESCAPE)) break;
 
         bool allCollected = true;
@@ -169,7 +171,7 @@ int main() {
             } else {
                 Vector2 playerGridPos = PixelPosToGridPos(playerPos);
                 Vector2 targetGridPos = playerGridPos;
-
+// Command Pattern
                 if (IsKeyDown(KEY_RIGHT)) targetGridPos.x++;
                 if (IsKeyDown(KEY_LEFT))  targetGridPos.x--;
                 if (IsKeyDown(KEY_UP))    targetGridPos.y--;
@@ -238,7 +240,7 @@ int main() {
         DrawTextEx(font, TextFormat("Score: %04d", score), (Vector2){10, 5}, 20, 2, YELLOW);
         DrawTextEx(font, TextFormat("Lives: %d", lives), (Vector2){200, 5}, 20, 2, RED);
         DrawText("ARROW KEYS: Move  SPACE: Pause  ESC: Quit", SCREEN_WIDTH / 2 - 250, SCREEN_HEIGHT - 30, 20, LIGHTGRAY);
-
+// State Pattern
         if (!gameRunning && lives <= 0) {
             DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, (Color){0, 0, 0, 150});
             DrawText("GAME OVER", SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 - 20, 40, RED);
